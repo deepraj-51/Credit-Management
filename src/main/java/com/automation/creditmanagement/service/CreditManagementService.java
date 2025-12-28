@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,22 +39,40 @@ public class CreditManagementService {
     @Autowired
     private CreditAgingRepository agingRepo;
 
+    public List<CustomerLedger> listAllLedgers() {
+        return ledgerRepo.findAll();
+    }
+
+    public List<CreditAging> listAllAging() {
+        return agingRepo.findAll();
+    }
+
+    public Customer setCustomerActive(Long customerId, boolean active) {
+        Objects.requireNonNull(customerId, "customerId");
+        Customer c = customerRepo.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        c.setIsActive(active);
+        return customerRepo.save(c);
+    }
+
     /* Customer operations */
     public Customer createCustomer(Customer customer) {
+        Objects.requireNonNull(customer, "customer");
         return customerRepo.save(customer);
     }
 
     public Customer getCustomer(Long id) {
-        return customerRepo.findById(id).orElseThrow();
+        Objects.requireNonNull(id, "id");
+        return customerRepo.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
     public Customer getCustomerByPhone(String phone) {
-        return customerRepo.findByPhoneNumber(phone).orElseThrow();
+        return customerRepo.findByPhoneNumber(phone).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
     /* Ledger operations */
     public CustomerLedger getLedger(Long customerId) {
-        return ledgerRepo.findById(customerId).orElseThrow();
+        Objects.requireNonNull(customerId, "customerId");
+        return ledgerRepo.findById(customerId).orElseThrow(() -> new RuntimeException("Ledger not found"));
     }
 
     public CustomerLedger createLedgerForCustomer(Customer customer) {
@@ -70,7 +89,9 @@ public class CreditManagementService {
     @Transactional
     public CreditTransaction addCreditTransaction(Long customerId, BigDecimal amount, String billRef,
             String description) {
-        CustomerLedger ledger = ledgerRepo.findById(customerId).orElseThrow();
+        Objects.requireNonNull(customerId, "customerId");
+        CustomerLedger ledger = ledgerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Ledger not found"));
         Customer customer = ledger.getCustomer();
 
         if (!Boolean.TRUE.equals(customer.getIsActive())) {
@@ -97,7 +118,9 @@ public class CreditManagementService {
     @Transactional
     public PaymentTransaction addPaymentTransaction(Long customerId, BigDecimal amount, String mode,
             String receivedBy) {
-        CustomerLedger ledger = ledgerRepo.findById(customerId).orElseThrow();
+        Objects.requireNonNull(customerId, "customerId");
+        CustomerLedger ledger = ledgerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Ledger not found"));
         Customer customer = ledger.getCustomer();
 
         PaymentTransaction txn = new PaymentTransaction();
@@ -118,21 +141,27 @@ public class CreditManagementService {
 
     /* Queries */
     public List<CreditTransaction> listCreditsForCustomer(Long customerId) {
+        Objects.requireNonNull(customerId, "customerId");
         return creditRepo.findByCustomerCustomerId(customerId);
     }
 
     public List<PaymentTransaction> listPaymentsForCustomer(Long customerId) {
+        Objects.requireNonNull(customerId, "customerId");
         return paymentRepo.findByCustomerCustomerId(customerId);
     }
 
     /* Credit aging */
     public CreditAging getAging(Long customerId) {
-        return agingRepo.findByCustomerCustomerId(customerId).orElseThrow();
+        Objects.requireNonNull(customerId, "customerId");
+        return agingRepo.findByCustomerCustomerId(customerId)
+                .orElseThrow(() -> new RuntimeException("Aging not found"));
     }
 
     public CreditAging upsertAging(Long customerId, BigDecimal d0to7, BigDecimal d8to15, BigDecimal d16to30,
             BigDecimal d31plus) {
-        Customer customer = customerRepo.findById(customerId).orElseThrow();
+        Objects.requireNonNull(customerId, "customerId");
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
         CreditAging aging = agingRepo.findByCustomerCustomerId(customerId).orElse(new CreditAging());
         aging.setCustomer(customer);
         aging.setDays0to7(d0to7);

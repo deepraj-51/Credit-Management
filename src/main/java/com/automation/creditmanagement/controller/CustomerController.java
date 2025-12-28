@@ -12,6 +12,7 @@ import com.automation.creditmanagement.model.Customer;
 import com.automation.creditmanagement.model.CustomerLedger;
 import com.automation.creditmanagement.model.PaymentTransaction;
 import com.automation.creditmanagement.service.CreditManagementService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -39,6 +40,11 @@ public class CustomerController {
         return ResponseEntity.ok(service.getCustomer(id));
     }
 
+    @GetMapping
+    public ResponseEntity<List<CustomerLedger>> listLedgers() {
+        return ResponseEntity.ok(service.listAllLedgers());
+    }
+
     @GetMapping("/{id}/ledger")
     public ResponseEntity<CustomerLedger> getLedger(@PathVariable Long id) {
         return ResponseEntity.ok(service.getLedger(id));
@@ -50,11 +56,26 @@ public class CustomerController {
         return ResponseEntity.ok(txn);
     }
 
+    @GetMapping("/{id}/credits")
+    public ResponseEntity<List<CreditTransaction>> listCredits(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listCreditsForCustomer(id));
+    }
+
     @PostMapping("/{id}/payments")
     public ResponseEntity<PaymentTransaction> addPayment(@PathVariable Long id, @RequestBody PaymentRequest req) {
         PaymentTransaction txn = service.addPaymentTransaction(id, req.amount, req.mode != null ? req.mode : "UPI",
                 req.receivedBy);
         return ResponseEntity.ok(txn);
+    }
+
+    @GetMapping("/{id}/payments")
+    public ResponseEntity<List<PaymentTransaction>> listPayments(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listPaymentsForCustomer(id));
+    }
+
+    @PostMapping("/{id}/block")
+    public ResponseEntity<Customer> blockCustomer(@PathVariable Long id) {
+        return ResponseEntity.ok(service.setCustomerActive(id, false));
     }
 
     @GetMapping("/{id}/aging")

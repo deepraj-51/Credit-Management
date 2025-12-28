@@ -1,0 +1,9 @@
+* { box-sizing: border-box; }
+body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 0; padding: 0; background: #f7fafc; color: #0f172a; }
+.container { max-width: 900px; margin: 32px auto; padding: 16px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px }
+.list { display:flex; flex-direction:column; gap:8px }
+.card { padding:12px; border:1px solid #e6edf3; border-radius:6px; background:#fff }
+.button { padding:8px 12px; background:#0369a1; color:white; border-radius:6px; text-decoration:none }
+.form-row { display:flex; gap:8px; margin-bottom:8px }
+.input { padding:8px; border:1px solid #cbd5e1; border-radius:6px; flex:1 }
